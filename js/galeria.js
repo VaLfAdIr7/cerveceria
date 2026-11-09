@@ -3,6 +3,7 @@ const D=window.CERVEZAS,$=s=>document.querySelector(s);
 const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 D.forEach(d=>d.k=norm(d.n+' '+d.p));
+D.sort((a,b)=>norm(a.n).localeCompare(norm(b.n),'es',{numeric:true}));
 const q=$('#q'),rej=$('#rejilla'),cnt=$('#cuenta'),nav=$('#letras'),chips=$('#paises'),dlg=$('#visor'),vimg=$('#vimg'),vcap=$('#vcap');
 let pais='',lista=[],cur=0;
 const tot={};D.forEach(d=>tot[d.p]=(tot[d.p]||0)+1);
