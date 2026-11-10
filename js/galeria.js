@@ -4,10 +4,10 @@ const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().re
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 D.forEach(d=>d.k=norm(d.n+' '+d.p));
 D.sort((a,b)=>norm(a.n).localeCompare(norm(b.n),'es',{numeric:true}));
-const q=$('#q'),rej=$('#rejilla'),cnt=$('#cuenta'),nav=$('#letras'),chips=$('#paises'),dlg=$('#visor'),vimg=$('#vimg'),vcap=$('#vcap');
+const q=$('#q'),rej=$('#rejilla'),cnt=$('#cuenta'),nav=$('#letras'),chips=$('#paises'),borrar=$('#borrar'),dlg=$('#visor'),vimg=$('#vimg'),vcap=$('#vcap');
 let pais='',lista=[],cur=0;
 const tot={};D.forEach(d=>tot[d.p]=(tot[d.p]||0)+1);
-const ord=Object.keys(tot).sort((a,b)=>(a.startsWith('Otras')-b.startsWith('Otras'))||tot[b]-tot[a]);
+const ord=Object.keys(tot).sort((a,b)=>(a.startsWith('Otras')-b.startsWith('Otras'))||a.localeCompare(b,'es'));
 chips.innerHTML=[['','Todas',D.length],...ord.map(p=>[p,p,tot[p]])].map(([v,t,n])=>`<button type="button" data-v="${esc(v)}">${esc(t)} (${n})</button>`).join('');
 chips.onclick=e=>{const b=e.target.closest('button');if(b){pais=b.dataset.v;render()}};
 const casi=(a,b)=>{if(Math.abs(a.length-b.length)>1)return false;let i=0,j=0,e=0;
@@ -25,6 +25,7 @@ if(l!==L){L=l;ls.push(l);h+=`<h2 class="letra" id="l-${l==='#'?'num':l}">${l}</h
 h+=`<button type="button" class="tarjeta" data-i="${i}"><img src="img/etiquetas/m/${d.f}.webp" alt="" width="${d.w}" height="${d.h}" loading="lazy" decoding="async"><span>${esc(d.n)}</span></button>`});
 rej.innerHTML=r.length?h:'<p class="vacio">No hay etiquetas con esa búsqueda. <button type="button" class="cerrar" id="limpiar">Quitar filtros</button></p>';
 nav.innerHTML=ls.map(l=>`<a href="#l-${l==='#'?'num':l}">${l}</a>`).join('');
+borrar.hidden=!q.value;
 cnt.textContent=r.length?`${r.length} de ${D.length} etiquetas${aprox?' · resultados aproximados':''}`:'';
 chips.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===pais));
 try{history.replaceState(null,'',q.value.trim()?'#q='+encodeURIComponent(q.value.trim()):location.pathname+location.search)}catch(e){}}
@@ -37,6 +38,6 @@ dlg.onkeydown=e=>{if(e.key==='ArrowLeft')ver(cur-1);if(e.key==='ArrowRight')ver(
 let x0=0;dlg.addEventListener('touchstart',e=>x0=e.touches[0].clientX,{passive:true});
 dlg.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>50)ver(cur+(dx<0?1:-1))});
 document.addEventListener('keydown',e=>{if(e.key==='/'&&document.activeElement!==q&&!dlg.open){e.preventDefault();q.focus()}});
-q.oninput=render;
+q.oninput=render;borrar.onclick=()=>{q.value='';render();q.focus()};
 if(location.hash.startsWith('#q='))q.value=decodeURIComponent(location.hash.slice(3));
 render()})();
